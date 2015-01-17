@@ -90,10 +90,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DebugMode\DebugMode.csproj">
-      <Project>{e090b747-ca20-4913-bb60-923d28651e93}</Project>
-      <Name>DebugMode</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\gw-interface\GuildWarsInterface\GuildWarsInterface.csproj">
       <Project>{fcae8279-545e-41c2-abb4-3c2db92e1c7e}</Project>
       <Name>GuildWarsInterface</Name>

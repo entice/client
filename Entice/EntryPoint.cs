@@ -2,7 +2,6 @@
 using System.Threading;
 using Entice.Debugging;
 using Entice.Linking;
-using ExternalProcessDebugMode;
 using GuildWarsInterface;
 using GuildWarsInterface.Declarations;
 using RGiesecke.DllExport;
@@ -14,7 +13,6 @@ namespace Entice
                 [DllExport("Main")]
                 internal static void Main()
                 {
-                        DebugMode.Activate();
                         AppDomain.CurrentDomain.UnhandledException += (sender, args) => Debug.Error(args.ExceptionObject.ToString());
                         GuildWarsInterface.Debugging.Debug.ThrowException += exception => Debug.Error(exception.ToString());
 
