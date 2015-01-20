@@ -1,54 +1,70 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Entice.Components.Senders;
 using Entice.Debugging;
 using Entice.Definitions;
-using Entice.Networking.Components.Senders;
 using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
+using GuildWarsInterface.Interaction;
 using GuildWarsInterface.Logic;
 
 namespace Entice.Linking
 {
         internal static class Client
         {
+                private static readonly Dictionary<string, IEnumerable<Skill>> _availableSkills = new Dictionary<string, IEnumerable<Skill>>();
+ 
                 public static void Initialize()
                 {
                         AuthLogic.Login = Login;
-                        AuthLogic.Logout = Networking.Networking.SignOut;
+                        AuthLogic.Logout = Networking.SignOut;
                         AuthLogic.Play = Play;
 
-                        GameLogic.ChatMessage = (message, channel) => Networking.Networking.Social.Message(message);
-                        GameLogic.PartyInvite = invitee => Networking.Networking.Area.Merge(invitee);
-                        GameLogic.PartyKickInvite = party => Networking.Networking.Area.Kick(party.Leader);
-                        GameLogic.PartyAcceptJoinRequest = party => Networking.Networking.Area.Merge(party.Leader);
-                        GameLogic.PartyKickJoinRequest = party => Networking.Networking.Area.Kick(party.Leader);
-                        GameLogic.PartyKickMember = member => Networking.Networking.Area.Kick(member);
-                        GameLogic.PartyLeave = () => Networking.Networking.Area.Kick(Game.Player.Character);
-                        GameLogic.ExitToCharacterScreen = () => { if (Game.Zone.Loaded) Networking.Networking.Area.Leave(); };
-                        GameLogic.ExitToLoginScreen = Networking.Networking.SignOut;
+                        GameLogic.ChatMessage = ChatMessage;
+                        GameLogic.PartyInvite = invitee => Networking.Area.Merge(invitee);
+                        GameLogic.PartyKickInvite = party => Networking.Area.Kick(party.Leader);
+                        GameLogic.PartyAcceptJoinRequest = party => Networking.Area.Merge(party.Leader);
+                        GameLogic.PartyKickJoinRequest = party => Networking.Area.Kick(party.Leader);
+                        GameLogic.PartyKickMember = member => Networking.Area.Kick(member);
+                        GameLogic.PartyLeave = () => Networking.Area.Kick(Game.Player.Character);
+                        GameLogic.ExitToCharacterScreen = () => { if (Game.Zone.Loaded) Networking.Area.Leave(); };
+                        GameLogic.ExitToLoginScreen = Networking.SignOut;
                         GameLogic.ChangeMap = ChangeMap;
+                }
+
+                private static void ChatMessage(string message, Chat.Channel channel)
+                {
+                        if (channel == Chat.Channel.Command)
+                        {
+                                Networking.Social.Emote(message);
+                        }
+                        else
+                        {
+                                Networking.Social.Message(message);
+                        }
                 }
 
                 private static void ChangeMap(Map map)
                 {
                         Area area = DefinitionConverter.ToArea(map);
 
-                        Networking.Networking.Area.Change(area);
+                        Networking.Area.Change(area);
 
-                        Networking.Networking.Area = new AreaSender(area);
+                        Networking.Area = new AreaSender(area);
                 }
 
                 private static bool Login(string email, string password, string character)
                 {
-                        if (!Networking.Networking.SignIn(email, password)) return false;
+                        if (!Networking.SignIn(email, password)) return false;
 
-                        IEnumerable<string> characterNames;
-                        if (!Networking.Networking.RestApi.GetCharacters(out characterNames)) return false;
+                        IEnumerable<KeyValuePair<PlayerCharacter, IEnumerable<Skill>>> characters;
+                        if (!Networking.RestApi.GetCharacters(out characters)) return false;
 
-                        foreach (string characterName in characterNames)
+                        foreach (var c in characters)
                         {
-                                Game.Player.Account.AddCharacter(new PlayerCharacter {Name = characterName});
+                                Game.Player.Account.AddCharacter(c.Key);
+                                _availableSkills.Add(c.Key.Name, c.Value);
                         }
 
                         Game.Player.Character = Game.Player.Account.Characters.FirstOrDefault();
@@ -61,15 +77,18 @@ namespace Entice.Linking
                         Area area = DefinitionConverter.ToArea(map);
 
                         string transferToken, clientId;
-                        if (!Networking.Networking.RestApi.RequestTransferToken(area, Game.Player.Character.Name, out transferToken, out clientId))
+                        if (!Networking.RestApi.RequestTransferToken(area, Game.Player.Character.Name, out transferToken, out clientId))
                         {
                                 Debug.Error("could not get a transfer token for the area {0} with character name {1}", area, Game.Player.Character.Name);
                         }
 
-                        Networking.Networking.Area = new AreaSender(area);
-                        Networking.Networking.Area.Join(transferToken, clientId);
+                        Networking.Area = new AreaSender(area);
+                        Networking.Area.Join(transferToken, clientId);
 
-                        if (!Networking.Networking.RestApi.JoinSocial("all", Game.Player.Character.Name)) Debug.Error("could not join social room {0} with character name {1}", "all", Game.Player.Character.Name);
+                        if (!Networking.RestApi.JoinSocial("all", Game.Player.Character.Name)) Debug.Error("could not join social room {0} with character name {1}", "all", Game.Player.Character.Name);
+
+                        Game.Player.Abilities.ClearAvailableSkills();                      
+                        _availableSkills[Game.Player.Character.Name].ToList().ForEach(s => Game.Player.Abilities.AddAvailableSkill(s));
                 }
         }
 }

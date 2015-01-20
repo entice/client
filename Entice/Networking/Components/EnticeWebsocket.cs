@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using WebSocket4Net;
 
-namespace Entice.Networking.Components
+namespace Entice.Components
 {
         internal class EnticeWebsocket : WebSocket
         {

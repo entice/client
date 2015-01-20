@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-namespace Entice.Networking.Base
+namespace Entice.Base
 {
         internal class Message
         {

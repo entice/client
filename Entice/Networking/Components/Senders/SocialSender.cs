@@ -1,4 +1,4 @@
-﻿namespace Entice.Networking.Components.Senders
+﻿namespace Entice.Components.Senders
 {
         internal class SocialSender : Sender
         {
@@ -19,6 +19,11 @@
                 public void Message(string message)
                 {
                         Send("message", o => o.text = message);
+                }
+
+                public void Emote(string emote)
+                {
+                        Send("emote", o => o.action = emote);
                 }
         }
 }

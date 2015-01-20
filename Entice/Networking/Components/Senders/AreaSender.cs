@@ -1,9 +1,12 @@
 ﻿using System.Linq;
 using Entice.Definitions;
 using Entice.Entities;
+using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
+using GuildWarsInterface.Declarations;
+using Newtonsoft.Json.Linq;
 
-namespace Entice.Networking.Components.Senders
+namespace Entice.Components.Senders
 {
         internal class AreaSender : Sender
         {
@@ -38,6 +41,26 @@ namespace Entice.Networking.Components.Senders
                 public void Kick(PlayerCharacter character)
                 {
                         Send("group:kick", o => o.target = Entity.Players.First(p => p.Character == character).Id.ToString());
+                }
+
+                public void Move(float x, float y, int plane, float speedModifier, MovementType movementType)
+                {
+                        dynamic p = new JObject();
+                        p.x = Game.Player.Character.Transformation.Position[0];
+                        p.y = Game.Player.Character.Transformation.Position[1];
+
+                        dynamic g = new JObject();
+                        g.x = x;
+                        g.y = y;
+
+                        Send("entity:move", o =>
+                                {
+                                        o.pos = p;
+                                        o.goal = g;
+                                        o.plane = plane;
+                                        o.movetype = movementType;
+                                        o.speed = speedModifier;
+                                });
                 }
         }
 }

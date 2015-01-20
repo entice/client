@@ -1,11 +1,11 @@
 ﻿using System.Threading;
+using Entice.Base;
+using Entice.Components;
+using Entice.Components.Senders;
 using Entice.Linking;
-using Entice.Networking.Base;
-using Entice.Networking.Components;
-using Entice.Networking.Components.Senders;
 using WebSocket4Net;
 
-namespace Entice.Networking
+namespace Entice
 {
         internal static class Networking
         {

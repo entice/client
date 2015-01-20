@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Entice.Base;
 using Entice.Definitions;
-using Entice.Networking.Base;
+using GuildWarsInterface.Datastructures.Agents;
+using GuildWarsInterface.Datastructures.Agents.Components;
+using GuildWarsInterface.Declarations;
 using Newtonsoft.Json.Linq;
 
-namespace Entice.Networking.Components
+namespace Entice.Components
 {
         internal class SecureRestApi
         {
@@ -84,12 +88,50 @@ namespace Entice.Networking.Components
                         return true;
                 }
 
-                public bool GetCharacters(out IEnumerable<string> characters)
+                public bool GetCharacters(out IEnumerable<KeyValuePair<PlayerCharacter, IEnumerable<Skill>>> characters)
                 {
                         const string ROUTE = "/api/char";
 
                         JObject response;
-                        characters = Http.Get(ROUTE, null, out response, _cookie) ? response.GetValue("characters").Select(c => c.Value<string>("name")) : null;
+                        if (Http.Get(ROUTE, null, out response, _cookie))
+                                characters = response.GetValue("characters").Select(
+                                        c =>
+                                                {
+                                                        var character = new PlayerCharacter
+                                                                {
+                                                                        Name = c.Value<string>("name"),
+                                                                        Appearance = new PlayerAppearance(c.Value<uint>("sex"),
+                                                                                                          c.Value<uint>("height"),
+                                                                                                          c.Value<uint>("skin_color"),
+                                                                                                          c.Value<uint>("hair_color"),
+                                                                                                          c.Value<uint>("face"),
+                                                                                                          c.Value<uint>("profession"),
+                                                                                                          c.Value<uint>("hairstyle"),
+                                                                                                          c.Value<uint>("campaign"))
+                                                                };
+
+                                                        var hSkills = c.Value<string>("available_skills");
+                                                        var avSkills = Enumerable.Range(0, hSkills.Length)
+                                                                                 .Select(x => Convert.ToByte(hSkills.Substring(x, 1), 16))
+                                                                                 .ToArray();
+
+                                                        var availableSkills = new List<Skill>();
+
+                                                        for (var i = 0; i < avSkills.Length; i++)
+                                                        {
+                                                                for (var j = 0; j < 4; j++)
+                                                                {
+                                                                        if (((1 << j) & avSkills[i]) > 0)
+                                                                        {
+                                                                                availableSkills.Add((Skill)(4*i + j + 1));
+                                                                        }
+                                                                }
+                                                        }
+
+                                                        return new KeyValuePair<PlayerCharacter, IEnumerable<Skill>>(character, availableSkills);
+                                                });
+
+                        else characters = null;
 
                         return characters != null;
                 }

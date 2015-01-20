@@ -1,7 +1,7 @@
 ﻿using System;
-using Entice.Networking.Base;
+using Entice.Base;
 
-namespace Entice.Networking.Components.Senders
+namespace Entice.Components.Senders
 {
         internal abstract class Sender
         {

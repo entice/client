@@ -12,6 +12,7 @@ namespace Entice.Entities
                 protected override void Initialized()
                 {
                         Character = new PlayerCharacter();
+                        Character.Transformation.Position = MapData.GetDefaultSpawnPoint(Game.Zone.Map);
                         Game.Zone.AddAgent(Character);
                 }
 
@@ -24,6 +25,16 @@ namespace Entice.Entities
                 {
                         switch (name)
                         {
+                                case "Movement":
+                                        {
+                                                var speedModifier = float.Parse(value.speed.ToString());
+                                                var movetype = int.Parse(value.movetype.ToString());
+                                                var x = float.Parse(value.goal.x.ToString());
+                                                var y = float.Parse(value.goal.y.ToString());
+                                                var plane = short.Parse(value.plane.ToString());
+                                                Character.Transformation.Move(x, y, plane, speedModifier, (MovementType)movetype);
+                                        }
+                                        break;
                                 case "Name":
                                         Character.Name = value.name.ToString();
                                         break;
@@ -40,7 +51,6 @@ namespace Entice.Entities
                                 case "Position":
                                         //Character.Transformation.Position = new float[] {float.Parse(value.pos.x.ToString()), float.Parse(value.pos.y.ToString())};
                                         // TODO: server does not send proper data yet
-                                        Character.Transformation.Position = MapData.GetDefaultSpawnPoint(Game.Zone.Map);
                                         break;
                                 case "Member":
                                         break;

@@ -1,19 +1,28 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Entice.Base;
+using Entice.Components.Senders;
 using Entice.Debugging;
 using Entice.Definitions;
 using Entice.Entities;
-using Entice.Networking.Base;
-using Entice.Networking.Components.Senders;
 using GuildWarsInterface;
+using GuildWarsInterface.Datastructures.Agents.Components;
 using GuildWarsInterface.Declarations;
 using GuildWarsInterface.Interaction;
 using Newtonsoft.Json.Linq;
+using WebSocket4Net;
 
 namespace Entice.Linking
 {
         internal static class Server
         {
+                static Server()
+                {
+                        AgentTransformation.GoalChanged += DoTheThing;
+                }
+
                 public static void Message(Message message)
                 {
                         Console.WriteLine("StoC: Topic: {0}, Event: {1}", message.Topic, message.Event);
@@ -24,8 +33,32 @@ namespace Entice.Linking
 
                                         break;
                                 case "social":
-                                        if (message.Event.Equals("message"))
-                                                Chat.ShowMessage(message.Payload.text.ToString(), message.Payload.sender.ToString(), "", Chat.GetColorForChannel(Chat.Channel.All));
+                                        switch (message.Event)
+                                        {
+                                                case "message":
+                                                        {
+                                                                Chat.ShowMessage(message.Payload.text.ToString(), message.Payload.sender.ToString(), "", Chat.GetColorForChannel(Chat.Channel.All));
+                                                        }
+                                                        break;
+                                                case "emote":
+                                                        {
+                                                                var sender = Game.Zone.Agents.FirstOrDefault(a => a.Name.Equals(message.Payload.sender.ToString()));
+                                                                
+                                                                if (sender != null)
+                                                                {
+                                                                        CreatureAnimation animation;
+                                                                        if (Enum.TryParse(message.Payload.action.ToString(), true, out animation))
+                                                                        {
+                                                                                sender.PerformAnimation(animation);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                                Chat.ShowMessage(string.Format("unknown emote: {0}", message.Payload.action));
+                                                                        }
+                                                                }
+                                                        }
+                                                        break;
+                                        }
                                         break;
                                 case "area":
                                         switch (message.Event)
@@ -34,10 +67,11 @@ namespace Entice.Linking
                                                         {
                                                                 var area = (Area) Enum.Parse(typeof (Area), message.Topic.Split(':').Last());
 
-                                                                Networking.Networking.Area = new AreaSender(area);
+                                                                Networking.Area = new AreaSender(area);
 
                                                                 dynamic playerCharacterId = Guid.Parse(message.Payload.entity.ToString());
                                                                 Game.Player.Character = Entity.Reset(playerCharacterId).Character;
+                                                                Game.Player.Character.Transformation.Changed += TransformationOnChanged;
 
                                                                 foreach (dynamic e in message.Payload.entities)
                                                                 {
@@ -87,7 +121,7 @@ namespace Entice.Linking
                                                         break;
                                                 case "area:change:ok":
                                                         {
-                                                                Networking.Networking.Area.Join(message.Payload.transfer_token.ToString(), message.Payload.client_id.ToString());
+                                                                Networking.Area.Join(message.Payload.transfer_token.ToString(), message.Payload.client_id.ToString());
                                                         }
                                                         break;
                                         }
@@ -96,6 +130,33 @@ namespace Entice.Linking
                                         Debug.Error("unknown topic {0}", message.Topic);
                                         break;
                         }
+                }
+
+                private static short _old;
+                private static float _oldSpeed;
+                private static void TransformationOnChanged()
+                {
+                        var t = Game.Player.Character.Transformation;
+
+                        var n = t.Plane;
+                        var speed = t.Speed;
+
+                        if (_old == n && Math.Abs(_oldSpeed - speed) < 0.1F) return;
+                        _old = n;
+                        _oldSpeed = speed;
+
+                        DoTheThing();
+                }
+
+                private static void DoTheThing()
+                {
+                        var speedModifier = Game.Player.Character.Transformation.Speed / Game.Player.Character.Speed;
+                        speedModifier = speedModifier > 0 ? Math.Max(0.01F, Math.Min(1F, speedModifier)) : 1;
+
+                        var x = AgentTransformation.GoalX;
+                        var y = AgentTransformation.GoalY;
+
+                        Networking.Area.Move(x, y, Game.Player.Character.Transformation.Plane, speedModifier, AgentTransformation.MovementType);
                 }
         }
 }

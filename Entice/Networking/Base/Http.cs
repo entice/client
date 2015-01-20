@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace Entice.Networking.Base
+namespace Entice.Base
 {
         internal static class Http
         {
