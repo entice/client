@@ -111,19 +111,19 @@ namespace Entice.Components
                                                                 };
 
                                                         var hSkills = c.Value<string>("available_skills");
-                                                        var avSkills = Enumerable.Range(0, hSkills.Length)
-                                                                                 .Select(x => Convert.ToByte(hSkills.Substring(x, 1), 16))
-                                                                                 .ToArray();
+                                                        byte[] avSkills = Enumerable.Range(0, hSkills.Length)
+                                                                                    .Select(x => Convert.ToByte(hSkills.Substring(x, 1), 16))
+                                                                                    .Reverse().ToArray();
 
                                                         var availableSkills = new List<Skill>();
 
-                                                        for (var i = 0; i < avSkills.Length; i++)
+                                                        for (int i = 0; i < avSkills.Length; i++)
                                                         {
-                                                                for (var j = 0; j < 4; j++)
+                                                                for (int j = 0; j < 4; j++)
                                                                 {
                                                                         if (((1 << j) & avSkills[i]) > 0)
                                                                         {
-                                                                                availableSkills.Add((Skill)(4*i + j + 1));
+                                                                                availableSkills.Add((Skill) (4 * i + j + 1));
                                                                         }
                                                                 }
                                                         }

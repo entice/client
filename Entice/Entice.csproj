@@ -70,6 +70,7 @@
     </Compile>
     <Compile Include="Definitions\DefinitionConverter.cs" />
     <Compile Include="Definitions\Area.cs" />
+    <Compile Include="Misc\MovementLimiter.cs" />
     <Compile Include="Networking\Components\EnticeWebsocket.cs" />
     <Compile Include="Networking\Base\Http.cs" />
     <Compile Include="Linking\Client.cs" />

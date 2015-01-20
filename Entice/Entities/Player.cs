@@ -12,7 +12,6 @@ namespace Entice.Entities
                 protected override void Initialized()
                 {
                         Character = new PlayerCharacter();
-                        Character.Transformation.Position = MapData.GetDefaultSpawnPoint(Game.Zone.Map);
                         Game.Zone.AddAgent(Character);
                 }
 
@@ -27,12 +26,12 @@ namespace Entice.Entities
                         {
                                 case "Movement":
                                         {
-                                                var speedModifier = float.Parse(value.speed.ToString());
-                                                var movetype = int.Parse(value.movetype.ToString());
-                                                var x = float.Parse(value.goal.x.ToString());
-                                                var y = float.Parse(value.goal.y.ToString());
-                                                var plane = short.Parse(value.plane.ToString());
-                                                Character.Transformation.Move(x, y, plane, speedModifier, (MovementType)movetype);
+                                                dynamic speedModifier = float.Parse(value.speed.ToString());
+                                                dynamic movetype = int.Parse(value.movetype.ToString());
+                                                dynamic x = float.Parse(value.goal.x.ToString());
+                                                dynamic y = float.Parse(value.goal.y.ToString());
+                                                dynamic plane = short.Parse(value.plane.ToString());
+                                                Character.Transformation.Move(x, y, plane, speedModifier, (MovementType) movetype);
                                         }
                                         break;
                                 case "Name":
@@ -49,10 +48,22 @@ namespace Entice.Entities
                                                                                     uint.Parse(value.campaign.ToString()));
                                         break;
                                 case "Position":
-                                        //Character.Transformation.Position = new float[] {float.Parse(value.pos.x.ToString()), float.Parse(value.pos.y.ToString())};
-                                        // TODO: server does not send proper data yet
+                                        Character.Transformation.Position = new Position(float.Parse(value.pos.x.ToString()), float.Parse(value.pos.y.ToString()),
+                                                                                         Character.Transformation.Position.Plane); // TODO: server handled plane
                                         break;
                                 case "Member":
+                                        break;
+                                case "SkillBar":
+                                        {
+                                                foreach (dynamic slot in value.slots)
+                                                {
+                                                        Game.Player.Abilities.SkillBar.SetSkill(uint.Parse(slot.slot.ToString()), (Skill) uint.Parse(slot.id.ToString()));
+                                                }
+                                        }
+                                        break;
+                                default:
+
+                                        int d = 0;
                                         break;
                         }
                 }

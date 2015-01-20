@@ -3,6 +3,7 @@ using Entice.Definitions;
 using Entice.Entities;
 using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
+using GuildWarsInterface.Datastructures.Agents.Components;
 using GuildWarsInterface.Declarations;
 using Newtonsoft.Json.Linq;
 
@@ -43,23 +44,34 @@ namespace Entice.Components.Senders
                         Send("group:kick", o => o.target = Entity.Players.First(p => p.Character == character).Id.ToString());
                 }
 
-                public void Move(float x, float y, int plane, float speedModifier, MovementType movementType)
+                public void Move()
                 {
+                        AgentTransformation t = Game.Player.Character.Transformation;
+
                         dynamic p = new JObject();
-                        p.x = Game.Player.Character.Transformation.Position[0];
-                        p.y = Game.Player.Character.Transformation.Position[1];
+                        p.x = t.Position.X;
+                        p.y = t.Position.Y;
 
                         dynamic g = new JObject();
-                        g.x = x;
-                        g.y = y;
+                        g.x = t.Goal.X;
+                        g.y = t.Goal.Y;
 
                         Send("entity:move", o =>
                                 {
                                         o.pos = p;
                                         o.goal = g;
-                                        o.plane = plane;
-                                        o.movetype = movementType;
-                                        o.speed = speedModifier;
+                                        o.plane = t.Position.Plane;
+                                        o.movetype = (int) t.MovementType;
+                                        o.speed = t.SpeedModifier;
+                                });
+                }
+
+                public void SkillbarSet(uint slot, Skill skill)
+                {
+                        Send("skillbar:set", o =>
+                                {
+                                        o.slot = slot;
+                                        o.id = (int) skill;
                                 });
                 }
         }

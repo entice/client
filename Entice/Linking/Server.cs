@@ -1,28 +1,21 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Entice.Base;
 using Entice.Components.Senders;
 using Entice.Debugging;
 using Entice.Definitions;
 using Entice.Entities;
+using Entice.Misc;
 using GuildWarsInterface;
-using GuildWarsInterface.Datastructures.Agents.Components;
+using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
 using GuildWarsInterface.Interaction;
 using Newtonsoft.Json.Linq;
-using WebSocket4Net;
 
 namespace Entice.Linking
 {
         internal static class Server
         {
-                static Server()
-                {
-                        AgentTransformation.GoalChanged += DoTheThing;
-                }
-
                 public static void Message(Message message)
                 {
                         Console.WriteLine("StoC: Topic: {0}, Event: {1}", message.Topic, message.Event);
@@ -42,8 +35,8 @@ namespace Entice.Linking
                                                         break;
                                                 case "emote":
                                                         {
-                                                                var sender = Game.Zone.Agents.FirstOrDefault(a => a.Name.Equals(message.Payload.sender.ToString()));
-                                                                
+                                                                Creature sender = Game.Zone.Agents.FirstOrDefault(a => a.Name.Equals(message.Payload.sender.ToString()));
+
                                                                 if (sender != null)
                                                                 {
                                                                         CreatureAnimation animation;
@@ -71,7 +64,10 @@ namespace Entice.Linking
 
                                                                 dynamic playerCharacterId = Guid.Parse(message.Payload.entity.ToString());
                                                                 Game.Player.Character = Entity.Reset(playerCharacterId).Character;
-                                                                Game.Player.Character.Transformation.Changed += TransformationOnChanged;
+                                                                Game.Player.Character.Transformation.GoalChanged += MovementLimiter.Trigger;
+                                                                Game.Player.Character.Transformation.MovementTypeChanged += MovementLimiter.Trigger;
+                                                                Game.Player.Character.Transformation.SpeedChanged += MovementLimiter.Trigger;
+                                                                Game.Player.Character.Transformation.PlaneChanged += MovementLimiter.Trigger;
 
                                                                 foreach (dynamic e in message.Payload.entities)
                                                                 {
@@ -85,11 +81,7 @@ namespace Entice.Linking
 
                                                                 Game.ChangeMap(DefinitionConverter.ToMap(area), zone =>
                                                                         {
-                                                                                Entity.Players.ForEach(p =>
-                                                                                        {
-                                                                                                p.Character.Transformation.Position = MapData.GetDefaultSpawnPoint(zone.Map);
-                                                                                                zone.AddAgent(p.Character);
-                                                                                        });
+                                                                                Entity.Players.ForEach(p => zone.AddAgent(p.Character));
 
                                                                                 Entity.Groups.ForEach(g => zone.AddParty(g.Party));
                                                                         });
@@ -130,33 +122,6 @@ namespace Entice.Linking
                                         Debug.Error("unknown topic {0}", message.Topic);
                                         break;
                         }
-                }
-
-                private static short _old;
-                private static float _oldSpeed;
-                private static void TransformationOnChanged()
-                {
-                        var t = Game.Player.Character.Transformation;
-
-                        var n = t.Plane;
-                        var speed = t.Speed;
-
-                        if (_old == n && Math.Abs(_oldSpeed - speed) < 0.1F) return;
-                        _old = n;
-                        _oldSpeed = speed;
-
-                        DoTheThing();
-                }
-
-                private static void DoTheThing()
-                {
-                        var speedModifier = Game.Player.Character.Transformation.Speed / Game.Player.Character.Speed;
-                        speedModifier = speedModifier > 0 ? Math.Max(0.01F, Math.Min(1F, speedModifier)) : 1;
-
-                        var x = AgentTransformation.GoalX;
-                        var y = AgentTransformation.GoalY;
-
-                        Networking.Area.Move(x, y, Game.Player.Character.Transformation.Plane, speedModifier, AgentTransformation.MovementType);
                 }
         }
 }

@@ -14,7 +14,7 @@ namespace Entice.Linking
         internal static class Client
         {
                 private static readonly Dictionary<string, IEnumerable<Skill>> _availableSkills = new Dictionary<string, IEnumerable<Skill>>();
- 
+
                 public static void Initialize()
                 {
                         AuthLogic.Login = Login;
@@ -31,6 +31,19 @@ namespace Entice.Linking
                         GameLogic.ExitToCharacterScreen = () => { if (Game.Zone.Loaded) Networking.Area.Leave(); };
                         GameLogic.ExitToLoginScreen = Networking.SignOut;
                         GameLogic.ChangeMap = ChangeMap;
+                        GameLogic.SkillBarEquipSkill = (slot, skill) => Networking.Area.SkillbarSet(slot, skill);
+                        GameLogic.SkillBarMoveSkillToEmptySlot = (@from, to) =>
+                                {
+                                        Networking.Area.SkillbarSet(to, Game.Player.Abilities.SkillBar.GetSkill(@from));
+                                        Networking.Area.SkillbarSet(@from, Skill.None);
+                                };
+                        GameLogic.SkillBarSwapSkills = (slot1, slot2) =>
+                                {
+                                        Skill skill1 = Game.Player.Abilities.SkillBar.GetSkill(slot1);
+                                        Skill skill2 = Game.Player.Abilities.SkillBar.GetSkill(slot2);
+                                        Networking.Area.SkillbarSet(slot2, skill1);
+                                        Networking.Area.SkillbarSet(slot1, skill2);
+                                };
                 }
 
                 private static void ChatMessage(string message, Chat.Channel channel)
@@ -61,6 +74,9 @@ namespace Entice.Linking
                         IEnumerable<KeyValuePair<PlayerCharacter, IEnumerable<Skill>>> characters;
                         if (!Networking.RestApi.GetCharacters(out characters)) return false;
 
+                        _availableSkills.Clear();
+                        Game.Player.Account.ClearCharacters();
+
                         foreach (var c in characters)
                         {
                                 Game.Player.Account.AddCharacter(c.Key);
@@ -74,6 +90,9 @@ namespace Entice.Linking
 
                 private static void Play(Map map)
                 {
+                        Game.Player.Abilities.ClearAvailableSkills();
+                        _availableSkills[Game.Player.Character.Name].ToList().ForEach(s => Game.Player.Abilities.AddAvailableSkill(s));
+
                         Area area = DefinitionConverter.ToArea(map);
 
                         string transferToken, clientId;
@@ -86,9 +105,6 @@ namespace Entice.Linking
                         Networking.Area.Join(transferToken, clientId);
 
                         if (!Networking.RestApi.JoinSocial("all", Game.Player.Character.Name)) Debug.Error("could not join social room {0} with character name {1}", "all", Game.Player.Character.Name);
-
-                        Game.Player.Abilities.ClearAvailableSkills();                      
-                        _availableSkills[Game.Player.Character.Name].ToList().ForEach(s => Game.Player.Abilities.AddAvailableSkill(s));
                 }
         }
 }
