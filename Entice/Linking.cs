@@ -85,8 +85,11 @@ namespace Entice
                         }
 
                         Networking.InitWebsocket(accessCredentials);
-
-                        Networking.Channels.All.ForEach(c => c.Area = area);
+                        Networking.Channels.All.ForEach(c =>
+                                {
+                                        c.Area = accessCredentials.Area;
+                                        c.IsOutpost = accessCredentials.IsOutpost;
+                                });
 
                         Game.Player.Character = Entity.Reset(accessCredentials.EntityId).Character;
 
