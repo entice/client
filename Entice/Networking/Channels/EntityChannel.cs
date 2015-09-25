@@ -47,15 +47,23 @@ namespace Entice.Channels
 
                                                 foreach (JProperty a in message.Payload.attributes.Values<JProperty>())
                                                 {
-                                                        if (a.Name.Equals("entity")) continue;
+                                                        Entity.UpdateEntity(id, a.Name, a.Value);
+                                                }
+                                        }
+                                        break;
+                                case "change":
+                                        {
+                                                Guid id = Guid.Parse(message.Payload.entity.ToString());
 
+                                                foreach (JProperty a in message.Payload.changed.Values<JProperty>())
+                                                {
                                                         Entity.UpdateEntity(id, a.Name, a.Value);
                                                 }
                                         }
                                         break;
                                 case "remove":
                                         {
-                                                Entity.RemoveEntity(Guid.Parse(message.Payload.entity_id.ToString()));
+                                                Entity.RemoveEntity(Guid.Parse(message.Payload.entity.ToString()));
                                         }
                                         break;
                         }
