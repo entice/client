@@ -43,6 +43,18 @@ namespace Entice.Entities
                                         break;
                                 case "member":
                                         break;
+                                case "health":
+                                        {
+                                                Character.Health.Maximum = uint.Parse(value.ToString());
+                                                Character.Health.Current = uint.Parse(value.ToString());
+                                        }
+                                        break;
+                                case "energy":
+                                        {
+                                                Character.Energy.Maximum = uint.Parse(value.ToString());
+                                                Character.Energy.Current = uint.Parse(value.ToString());
+                                        }
+                                        break;
                                 case "skillBar":
                                         {
                                                 foreach (dynamic slot in value.slots)
