@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Entice.Debugging;
-using Entice.Linking;
 using GuildWarsInterface;
 using GuildWarsInterface.Declarations;
 using RGiesecke.DllExport;
@@ -17,7 +16,7 @@ namespace Entice
                         GuildWarsInterface.Debugging.Debug.ThrowException += exception => Debug.Error(exception.ToString());
 
                         Game.Initialize();
-                        Client.Initialize();
+                        Linking.Initialize();
 
                         new Thread(() =>
                                 {

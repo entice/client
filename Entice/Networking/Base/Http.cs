@@ -23,7 +23,7 @@ namespace Entice.Base
 
                                 using (var client = new HttpClient(handler))
                                 {
-                                        await client.PostAsync(FormUri(route, parameters), new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()));
+                                        await client.PostAsync(FormUri(route), new FormUrlEncodedContent(parameters));
 
                                         return handler.CookieContainer.GetCookies(new Uri(FormUri(route))).Cast<Cookie>();
                                 }
@@ -55,11 +55,9 @@ namespace Entice.Base
 
                 private static string FormUri(string route, IEnumerable<KeyValuePair<string, string>> parameters = null)
                 {
-                        const string BASE_URI = "http://entice-web.herokuapp.com";
+                        const string BASE_URI = "http://entice-web-staging.herokuapp.com";
 
-                        string[] ps = parameters == null ? new string[0] : parameters.Select(p => string.Format("{0}={1}", p.Key, p.Value)).ToArray();
-
-                        return BASE_URI + route + (!ps.Any() ? "" : "?" + string.Join("&", ps));
+                        return Networking.FormUri(BASE_URI + route, parameters);
                 }
         }
 }

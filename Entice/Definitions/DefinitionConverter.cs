@@ -15,6 +15,8 @@ namespace Entice.Definitions
                                         return Area.random_arenas;
                                 case Map.TeamArenas:
                                         return Area.team_arenas;
+                                case Map.GreatTempleOfBalthazar:
+                                        return Area.great_temple_of_balthazar;
                                 default:
                                         throw new ArgumentOutOfRangeException("map");
                         }
@@ -30,6 +32,8 @@ namespace Entice.Definitions
                                         return Map.RandomArenas;
                                 case Area.team_arenas:
                                         return Map.TeamArenas;
+                                case Area.great_temple_of_balthazar:
+                                        return Map.GreatTempleOfBalthazar;
                                 default:
                                         throw new ArgumentOutOfRangeException("area");
                         }

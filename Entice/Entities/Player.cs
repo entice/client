@@ -24,20 +24,10 @@ namespace Entice.Entities
                 {
                         switch (name)
                         {
-                                case "Movement":
-                                        {
-                                                dynamic speedModifier = float.Parse(value.speed.ToString());
-                                                dynamic movetype = int.Parse(value.movetype.ToString());
-                                                dynamic x = float.Parse(value.goal.x.ToString());
-                                                dynamic y = float.Parse(value.goal.y.ToString());
-                                                dynamic plane = short.Parse(value.plane.ToString());
-                                                Character.Transformation.Move(x, y, plane, speedModifier, (MovementType) movetype);
-                                        }
+                                case "name":
+                                        Character.Name = value.ToString();
                                         break;
-                                case "Name":
-                                        Character.Name = value.name.ToString();
-                                        break;
-                                case "Appearance":
+                                case "appearance":
                                         Character.Appearance = new PlayerAppearance(uint.Parse(value.sex.ToString()),
                                                                                     uint.Parse(value.height.ToString()),
                                                                                     uint.Parse(value.skin_color.ToString()),
@@ -47,23 +37,19 @@ namespace Entice.Entities
                                                                                     uint.Parse(value.hairstyle.ToString()),
                                                                                     uint.Parse(value.campaign.ToString()));
                                         break;
-                                case "Position":
-                                        Character.Transformation.Position = new Position(float.Parse(value.pos.x.ToString()), float.Parse(value.pos.y.ToString()),
+                                case "position":
+                                        Character.Transformation.Position = new Position(float.Parse(value.x.ToString()), float.Parse(value.y.ToString()),
                                                                                          Character.Transformation.Position.Plane); // TODO: server handled plane
                                         break;
-                                case "Member":
+                                case "member":
                                         break;
-                                case "SkillBar":
+                                case "skillBar":
                                         {
                                                 foreach (dynamic slot in value.slots)
                                                 {
-                                                        Game.Player.Abilities.SkillBar.SetSkill(uint.Parse(slot.slot.ToString()), (Skill) uint.Parse(slot.id.ToString()));
+                                                        Game.Player.Character.SkillBar.SetSkill(uint.Parse(slot.slot.ToString()), (Skill) uint.Parse(slot.id.ToString()));
                                                 }
                                         }
-                                        break;
-                                default:
-
-                                        int d = 0;
                                         break;
                         }
                 }

@@ -7,8 +7,6 @@ namespace Entice.Entities
 {
         internal abstract class Entity
         {
-                public static Guid MyId;
-
                 public static readonly Dictionary<Guid, Entity> Entities = new Dictionary<Guid, Entity>();
 
                 public Guid Id { get; private set; }
@@ -16,11 +14,6 @@ namespace Entice.Entities
                 public static List<Player> Players
                 {
                         get { return Entities.Values.OfType<Player>().ToList(); }
-                }
-
-                public static List<Group> Groups
-                {
-                        get { return Entities.Values.OfType<Group>().ToList(); }
                 }
 
                 protected abstract void UpdateAttribute(string name, dynamic value);
@@ -45,10 +38,8 @@ namespace Entice.Entities
                 {
                         switch (property)
                         {
-                                case "Member":
+                                case "appearance":
                                         return GetEntity<Player>(entity.Id);
-                                case "Group":
-                                        return GetEntity<Group>(entity.Id);
                                 default:
                                         return entity;
                         }

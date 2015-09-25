@@ -1,18 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
+using Entice.Base;
 using WebSocket4Net;
 
 namespace Entice.Components
 {
-        internal class EnticeWebsocket : WebSocket
+        internal class EnticeWebsocket
         {
-                private const string URI = "ws://entice-web.herokuapp.com/ws";
+                private readonly WebSocket _webSocket;
 
-                public EnticeWebsocket(Cookie cookie)
-                        : base(URI, "", new List<KeyValuePair<string, string>> {new KeyValuePair<string, string>(cookie.Name, cookie.Value)})
+                public EnticeWebsocket(string uri)
                 {
-                        Closed += (sender, args) => Console.WriteLine("connection lost");
+                        _webSocket = new WebSocket(uri);
+                        _webSocket.Closed += (sender, args) => Console.WriteLine("connection lost");
+                        _webSocket.MessageReceived += (sender, args) => Networking.Channels.HandleMessage(new Message(args.Message));
+                }
+
+                public WebSocketState State
+                {
+                        get { return _webSocket.State; }
+                }
+
+                public void Send(Message message)
+                {
+                        if (!message.Topic.Equals("phoenix")) Console.WriteLine("CtoS: Topic: {0}, Event: {1}", message.Topic, message.Event);
+
+                        _webSocket.Send(message.ToString());
+                }
+
+                public void Open()
+                {
+                        _webSocket.Open();
+                }
+
+                public void Close()
+                {
+                        _webSocket.Close();
                 }
         }
 }

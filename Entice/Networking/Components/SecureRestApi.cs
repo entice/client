@@ -6,7 +6,6 @@ using Entice.Base;
 using Entice.Definitions;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Datastructures.Agents.Components;
-using GuildWarsInterface.Declarations;
 using Newtonsoft.Json.Linq;
 
 namespace Entice.Components
@@ -20,7 +19,7 @@ namespace Entice.Components
                         _cookie = cookie;
                 }
 
-                public static bool Login(string email, string password, out SecureRestApi api, out EnticeWebsocket websocket)
+                public static bool Login(string email, string password, out SecureRestApi api)
                 {
                         const string ROUTE = "/api/login";
 
@@ -30,8 +29,6 @@ namespace Entice.Components
                                         new KeyValuePair<string, string>("password", password)
                                 }).FirstOrDefault(c => c.Name.Equals("entice_session")));
 
-                        websocket = new EnticeWebsocket(api._cookie);
-
                         return api._cookie != null;
                 }
 
@@ -39,101 +36,75 @@ namespace Entice.Components
                 {
                         const string ROUTE = "/api/logout";
 
-                        Http.Post(ROUTE, null, _cookie);
+                        Http.Post(ROUTE, new List<KeyValuePair<string, string>>(), _cookie);
                 }
 
-                private bool GetToken(string route, IEnumerable<KeyValuePair<string, string>> parameters, out string transferToken, out string clientId)
+                private bool GetToken(string route, IEnumerable<KeyValuePair<string, string>> parameters, out AccessCredentials accessCredentials)
                 {
                         JObject response;
                         if (Http.Get(route, parameters, out response, _cookie))
                         {
-                                transferToken = response.GetValue("transfer_token").ToString();
-                                clientId = response.GetValue("client_id").ToString();
+                                accessCredentials = new AccessCredentials
+                                        {
+                                                Area = (Area) Enum.Parse(typeof (Area), response.GetValue("map").ToString()),
+                                                ClientId = response.GetValue("client_id").ToString(),
+                                                EntityId = Guid.Parse(response.GetValue("entity_id").ToString()),
+                                                EntityToken = response.GetValue("entity_token").ToString(),
+                                                IsOutpost = response.GetValue("is_outpost").Value<bool>()
+                                        };
                         }
                         else
                         {
-                                transferToken = null;
-                                clientId = null;
+                                accessCredentials = null;
                         }
 
-                        return transferToken != clientId;
+                        return accessCredentials != null;
                 }
 
-                public bool RequestTransferToken(Area area, string character, out string transferToken, out string clientId)
+                public bool RequestAccessToken(Area area, string character, out AccessCredentials accessCredentials)
                 {
-                        const string ROUTE = "/api/token/area";
+                        const string ROUTE = "/api/token/entity";
 
                         return GetToken(ROUTE, new[]
                                 {
                                         new KeyValuePair<string, string>("map", area.ToString()),
                                         new KeyValuePair<string, string>("char_name", character)
                                 },
-                                        out transferToken, out clientId);
+                                        out accessCredentials);
                 }
 
-                public bool JoinSocial(string room, string character)
-                {
-                        const string ROUTE = "/api/token/social";
-
-                        string transferToken, clientId;
-                        if (!GetToken(ROUTE, new[]
-                                {
-                                        new KeyValuePair<string, string>("room", room),
-                                        new KeyValuePair<string, string>("char_name", character)
-                                },
-                                      out transferToken, out clientId)) return false;
-
-                        Networking.Social.Join(transferToken, clientId);
-
-                        return true;
-                }
-
-                public bool GetCharacters(out IEnumerable<KeyValuePair<PlayerCharacter, IEnumerable<Skill>>> characters)
+                public bool GetCharacters(out IEnumerable<PlayerCharacter> characters)
                 {
                         const string ROUTE = "/api/char";
 
                         JObject response;
                         if (Http.Get(ROUTE, null, out response, _cookie))
                                 characters = response.GetValue("characters").Select(
-                                        c =>
+                                        c => new PlayerCharacter
                                                 {
-                                                        var character = new PlayerCharacter
-                                                                {
-                                                                        Name = c.Value<string>("name"),
-                                                                        Appearance = new PlayerAppearance(c.Value<uint>("sex"),
-                                                                                                          c.Value<uint>("height"),
-                                                                                                          c.Value<uint>("skin_color"),
-                                                                                                          c.Value<uint>("hair_color"),
-                                                                                                          c.Value<uint>("face"),
-                                                                                                          c.Value<uint>("profession"),
-                                                                                                          c.Value<uint>("hairstyle"),
-                                                                                                          c.Value<uint>("campaign"))
-                                                                };
-
-                                                        var hSkills = c.Value<string>("available_skills");
-                                                        byte[] avSkills = Enumerable.Range(0, hSkills.Length)
-                                                                                    .Select(x => Convert.ToByte(hSkills.Substring(x, 1), 16))
-                                                                                    .Reverse().ToArray();
-
-                                                        var availableSkills = new List<Skill>();
-
-                                                        for (int i = 0; i < avSkills.Length; i++)
-                                                        {
-                                                                for (int j = 0; j < 4; j++)
-                                                                {
-                                                                        if (((1 << j) & avSkills[i]) > 0)
-                                                                        {
-                                                                                availableSkills.Add((Skill) (4 * i + j + 1));
-                                                                        }
-                                                                }
-                                                        }
-
-                                                        return new KeyValuePair<PlayerCharacter, IEnumerable<Skill>>(character, availableSkills);
+                                                        Name = c.Value<string>("name"),
+                                                        Appearance = new PlayerAppearance(c.Value<uint>("sex"),
+                                                                                          c.Value<uint>("height"),
+                                                                                          c.Value<uint>("skin_color"),
+                                                                                          c.Value<uint>("hair_color"),
+                                                                                          c.Value<uint>("face"),
+                                                                                          c.Value<uint>("profession"),
+                                                                                          c.Value<uint>("hairstyle"),
+                                                                                          c.Value<uint>("campaign"))
                                                 });
 
                         else characters = null;
 
                         return characters != null;
+                }
+
+                public class AccessCredentials
+                {
+                        public string ClientId { get; set; }
+                        public string EntityToken { get; set; }
+                        public Guid EntityId { get; set; }
+                        public Area Area { get; set; }
+                        public bool IsOutpost { get; set; }
                 }
         }
 }
