@@ -26,14 +26,14 @@ namespace Entice.Channels
                         Send("phx_leave", o => { });
                 }
 
-                protected void Send(string @event, Action<dynamic> payload)
+                protected void Send(string @event, Action<dynamic> payload, string @ref = "")
                 {
-                        Networking.Websocket.Send(new Message(Topic + ":" + Area, @event, "", payload));
+                        Networking.Websocket.Send(new Message(Topic + ":" + Area, @event, @ref, payload));
                 }
 
-                protected void Send(string topic, string @event, Action<dynamic> payload)
+                protected void Send(string topic, string @event, Action<dynamic> payload, string @ref = "")
                 {
-                        Networking.Websocket.Send(new Message(Topic + ":" + Area + topic, @event, "", payload));
+                        Networking.Websocket.Send(new Message(Topic + ":" + Area + topic, @event, @ref, payload));
                 }
 
                 public abstract void HandleMessage(Message message);

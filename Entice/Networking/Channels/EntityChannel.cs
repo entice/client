@@ -10,6 +10,8 @@ namespace Entice.Channels
 {
         internal class EntityChannel : Channel
         {
+                private const string MAP_CHANGE_REF = "mapchange";
+
                 public EntityChannel()
                         : base("entity")
                 {
@@ -17,13 +19,29 @@ namespace Entice.Channels
 
                 public void MapChange(Area area)
                 {
-                        Send("map:change", o => { o.map = area.ToString(); });
+                        Send("map:change", o => { o.map = area.ToString(); }, MAP_CHANGE_REF);
                 }
 
                 public override void HandleMessage(Message message)
                 {
                         switch (message.Event)
                         {
+                                case "phx_reply":
+                                        {
+                                                if (!message.Payload.status.ToString().Equals("ok")) return;
+
+                                                switch (message.Ref)
+                                                {
+                                                        case MAP_CHANGE_REF:
+                                                                {
+                                                                        var area = (Area) Enum.Parse(typeof (Area), message.Payload.response.map.ToString());
+
+                                                                        Networking.ChangeArea(area, Game.Player.Character.Name);
+                                                                }
+                                                                break;
+                                                }
+                                        }
+                                        break;
                                 case "join:ok":
                                         {
                                                 Guid myId = Entity.Entities.Values.OfType<Player>().First(p => p.Character == Game.Player.Character).Id;

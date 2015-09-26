@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Entice.Components;
-using Entice.Debugging;
 using Entice.Definitions;
-using Entice.Entities;
 using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
@@ -78,22 +75,7 @@ namespace Entice
                 {
                         Area area = DefinitionConverter.ToArea(map);
 
-                        SecureRestApi.AccessCredentials accessCredentials;
-                        if (!Networking.RestApi.RequestAccessToken(area, Game.Player.Character.Name, out accessCredentials))
-                        {
-                                Debug.Error("could not get a entity token for the area {0} with character name {1}", area, Game.Player.Character.Name);
-                        }
-
-                        Networking.InitWebsocket(accessCredentials);
-                        Networking.Channels.All.ForEach(c =>
-                                {
-                                        c.Area = accessCredentials.Area;
-                                        c.IsOutpost = accessCredentials.IsOutpost;
-                                });
-
-                        Game.Player.Character = Entity.Reset(accessCredentials.EntityId).Character;
-
-                        Networking.Channels.All.ForEach(c => c.Join());
+                        Networking.ChangeArea(area, Game.Player.Character.Name);
                 }
         }
 }

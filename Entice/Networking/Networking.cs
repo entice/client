@@ -5,6 +5,10 @@ using System.Threading;
 using Entice.Base;
 using Entice.Channels;
 using Entice.Components;
+using Entice.Debugging;
+using Entice.Definitions;
+using Entice.Entities;
+using GuildWarsInterface;
 using WebSocket4Net;
 
 namespace Entice
@@ -37,7 +41,7 @@ namespace Entice
                         Websocket = null;
                 }
 
-                public static bool InitWebsocket(SecureRestApi.AccessCredentials accessCredentials)
+                private static bool InitWebsocket(SecureRestApi.AccessCredentials accessCredentials)
                 {
                         const string URI = "wss://entice-web-staging.herokuapp.com/socket/websocket";
 
@@ -54,6 +58,31 @@ namespace Entice
                         Websocket.Open();
                         while (Websocket.State == WebSocketState.Connecting) ;
                         return Websocket.State == WebSocketState.Open;
+                }
+
+                public static bool ChangeArea(Area area, string characterName)
+                {
+                        if (Websocket != null) Channels.All.ForEach(c => c.Leave());
+
+                        SecureRestApi.AccessCredentials accessCredentials;
+                        if (!RestApi.RequestAccessToken(area, characterName, out accessCredentials))
+                        {
+                                Debug.Error("could not get a entity token for the area {0} with character name {1}", area, Game.Player.Character.Name);
+                        }
+
+                        if (!InitWebsocket(accessCredentials)) return false;
+
+                        Channels.All.ForEach(c =>
+                                {
+                                        c.Area = accessCredentials.Area;
+                                        c.IsOutpost = accessCredentials.IsOutpost;
+                                });
+
+                        Game.Player.Character = Entity.Reset(accessCredentials.EntityId).Character;
+
+                        Channels.All.ForEach(c => c.Join());
+
+                        return true;
                 }
 
                 public static string FormUri(string uri, IEnumerable<KeyValuePair<string, string>> parameters = null)
