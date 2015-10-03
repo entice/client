@@ -73,6 +73,11 @@ namespace Entice.Channels
                                         {
                                                 Guid id = Guid.Parse(message.Payload.entity.ToString());
 
+                                                foreach (JProperty a in message.Payload.added.Values<JProperty>())
+                                                {
+                                                        Entity.UpdateEntity(id, a.Name, a.Value);
+                                                }
+
                                                 foreach (JProperty a in message.Payload.changed.Values<JProperty>())
                                                 {
                                                         Entity.UpdateEntity(id, a.Name, a.Value);
