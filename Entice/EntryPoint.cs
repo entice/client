@@ -26,6 +26,8 @@ namespace Entice
                                                 Thread.Sleep(100);
                                         }
                                 }).Start();
+
+                        new Thread(Movement.Task).Start();
                 }
         }
 }
