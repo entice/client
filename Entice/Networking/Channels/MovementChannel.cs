@@ -30,7 +30,7 @@ namespace Entice.Channels
 
                         Send("update", o =>
                                 {
-                                        o.pos = p;
+                                        o.position = p;
                                         o.goal = g;
                                         o.velocity = velocity;
                                         o.move_type = movementType;
@@ -48,7 +48,7 @@ namespace Entice.Channels
 
                                                 float x = float.Parse(message.Payload.goal.x.ToString());
                                                 float y = float.Parse(message.Payload.goal.y.ToString());
-                                                short plane = short.Parse(message.Payload.pos.plane.ToString());
+                                                short plane = short.Parse(message.Payload.position.plane.ToString());
 
                                                 character.Transformation.SetGoal(x, y, plane);
                                                 character.Transformation.SpeedModifier = float.Parse(message.Payload.velocity.ToString());
