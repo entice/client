@@ -10,12 +10,12 @@ namespace Entice.Base
 {
         internal static class Http
         {
-                public static IEnumerable<Cookie> Post(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                public static KeyValuePair<bool, IEnumerable<Cookie>> Post(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
                 {
                         return PostAsync(route, parameters, cookie).Result;
                 }
 
-                private static async Task<IEnumerable<Cookie>> PostAsync(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                private static async Task<KeyValuePair<bool,IEnumerable<Cookie>>> PostAsync(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
                 {
                         using (var handler = new HttpClientHandler())
                         {
@@ -23,9 +23,9 @@ namespace Entice.Base
 
                                 using (var client = new HttpClient(handler))
                                 {
-                                        await client.PostAsync(FormUri(route), new FormUrlEncodedContent(parameters));
+                                        HttpResponseMessage response = await client.PostAsync(FormUri(route), new FormUrlEncodedContent(parameters));
 
-                                        return handler.CookieContainer.GetCookies(new Uri(FormUri(route))).Cast<Cookie>();
+                                        return new KeyValuePair<bool, IEnumerable<Cookie>>(response.IsSuccessStatusCode,handler.CookieContainer.GetCookies(new Uri(FormUri(route))).Cast<Cookie>());
                                 }
                         }
                 }

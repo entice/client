@@ -27,9 +27,7 @@ namespace Entice
 
                                 if (_fire && Game.Player.Character.Transformation.Goal != null)
                                 {
-                                        Networking.Channels.Movement.UpdatePos(_position);
-                                        Networking.Channels.Movement.UpdateMoveType(_speedModifier, _type);
-                                        Networking.Channels.Movement.UpdateGoal(_goal, _position.Plane);
+                                        Networking.Channels.Movement.Update(_position, _goal, _speedModifier, _type);
 
                                         _fire = false;
                                 }

@@ -23,13 +23,33 @@ namespace Entice.Components
                 {
                         const string ROUTE = "/api/login";
 
-                        api = new SecureRestApi(Http.Post(ROUTE, new[]
+                        var response = Http.Post(ROUTE, new[]
                                 {
                                         new KeyValuePair<string, string>("email", email),
                                         new KeyValuePair<string, string>("password", password)
-                                }).FirstOrDefault(c => c.Name.Equals("entice_session")));
+                                });
+
+                        api = new SecureRestApi(response.Value.FirstOrDefault(c => c.Name.Equals("entice_session")));
 
                         return api._cookie != null;
+                }
+
+                public bool CreateCharacter(string name, PlayerAppearance apperance)
+                {
+                        const string ROUTE = "/api/char";
+
+                        return Http.Post(ROUTE, new[]
+                                {
+                                        new KeyValuePair<string, string>("name", name),
+                                        new KeyValuePair<string, string>("profession", apperance.Profession.ToString()),
+                                        new KeyValuePair<string, string>("campaign", apperance.Campaign.ToString()),
+                                        new KeyValuePair<string, string>("sex", apperance.Sex.ToString()),
+                                        new KeyValuePair<string, string>("height", apperance.Height.ToString()),
+                                        new KeyValuePair<string, string>("skin_color", apperance.SkinColor.ToString()),
+                                        new KeyValuePair<string, string>("hair_color", apperance.HairColor.ToString()),
+                                        new KeyValuePair<string, string>("hairstyle", apperance.Hairstyle.ToString()),
+                                        new KeyValuePair<string, string>("face", apperance.Face.ToString()),
+                                }, _cookie).Key;
                 }
 
                 public void Logout()

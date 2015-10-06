@@ -16,34 +16,24 @@ namespace Entice.Channels
                 {
                 }
 
-                public void UpdatePos(Position position)
+                public void Update(Position position, Position goal, float velocity, MovementType movementType)
                 {
                         dynamic p = new JObject();
                         p.x = position.X;
                         p.y = position.Y;
+                        p.plane = position.Plane;
 
-                        Send("update:pos", o => { o.pos = p; });
-                }
-
-                public void UpdateGoal(Position goal, short plane)
-                {
                         dynamic g = new JObject();
                         g.x = goal.X;
                         g.y = goal.Y;
+                        g.plane = goal.Plane;
 
-                        Send("update:goal", o =>
+                        Send("update", o =>
                                 {
+                                        o.pos = p;
                                         o.goal = g;
-                                        o.plane = plane;
-                                });
-                }
-
-                public void UpdateMoveType(float velocity, MovementType movementType)
-                {
-                        Send("update:movetype", o =>
-                                {
                                         o.velocity = velocity;
-                                        o.movetype = movementType;
+                                        o.move_type = movementType;
                                 });
                 }
 
@@ -51,25 +41,18 @@ namespace Entice.Channels
                 {
                         switch (message.Event)
                         {
-                                case "update:goal":
+                                case "update:pos":
                                         {
                                                 PlayerCharacter character = Entity.GetEntity<Player>(Guid.Parse(message.Payload.entity.ToString())).Character;
                                                 if (character == Game.Player.Character) return;
 
                                                 float x = float.Parse(message.Payload.goal.x.ToString());
                                                 float y = float.Parse(message.Payload.goal.y.ToString());
-                                                short plane = short.Parse(message.Payload.plane.ToString());
+                                                short plane = short.Parse(message.Payload.position.plane.ToString());
 
                                                 character.Transformation.SetGoal(x, y, plane);
-                                        }
-                                        break;
-                                case "update:movetype":
-                                        {
-                                                PlayerCharacter character = Entity.GetEntity<Player>(Guid.Parse(message.Payload.entity.ToString())).Character;
-                                                if (character == Game.Player.Character) return;
-
                                                 character.Transformation.SpeedModifier = float.Parse(message.Payload.velocity.ToString());
-                                                character.Transformation.MovementType = (MovementType)byte.Parse(message.Payload.movetype.ToString());
+                                                character.Transformation.MovementType = (MovementType)byte.Parse(message.Payload.move_type.ToString());
                                         }
                                         break;
                         }

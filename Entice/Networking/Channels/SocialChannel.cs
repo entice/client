@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Entice.Base;
 using GuildWarsInterface;
@@ -47,7 +48,24 @@ namespace Entice.Channels
                                                         }
                                                         else
                                                         {
-                                                                Chat.ShowMessage(string.Format("unknown emote: {0}", message.Payload.action));
+                                                                List<string> args;
+                                                                string command = Chat.ParseCommand(message.Payload.action.ToString(), out args);
+                                                                switch (command)
+                                                                {
+                                                                        case "fame":
+                                                                                if (args.Count == 1)
+                                                                                {
+                                                                                        uint rank;
+                                                                                        if (uint.TryParse(args.First(), out rank))
+                                                                                        {
+                                                                                                sender.PerformFameEmote(rank);
+                                                                                        }
+                                                                                }
+                                                                                break;
+                                                                        default:
+                                                                                Chat.ShowMessage(string.Format("unknown command: {0}", command));
+                                                                                break;
+                                                                }
                                                         }
                                                 }
                                         }
