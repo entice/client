@@ -44,16 +44,15 @@ namespace Entice.Entities
                                 case "member":
                                         break;
                                 case "health":
-                                        {
-                                                Character.Health.Maximum = uint.Parse(value.ToString());
-                                                Character.Health.Current = uint.Parse(value.ToString());
-                                        }
+                                        Character.Health.Current = uint.Parse(value.health.ToString());
+                                        Character.Health.Maximum = uint.Parse(value.max_health.ToString());
                                         break;
                                 case "energy":
-                                        {
-                                                Character.Energy.Maximum = uint.Parse(value.ToString());
-                                                Character.Energy.Current = uint.Parse(value.ToString());
-                                        }
+                                        Character.Energy.Current = uint.Parse(value.mana.ToString());
+                                        Character.Energy.Maximum = uint.Parse(value.max_mana.ToString());
+                                        break;
+                                case "level":
+                                        Character.Level = byte.Parse(value.ToString());
                                         break;
                                 case "skillBar":
                                         {

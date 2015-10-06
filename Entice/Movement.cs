@@ -27,7 +27,10 @@ namespace Entice
 
                                 if (_fire && Game.Player.Character.Transformation.Goal != null)
                                 {
-                                        Networking.Channels.Movement.Update(_position, _goal, _speedModifier, _type);
+                                        if (_position != null && _goal != null)
+                                        {
+                                                Networking.Channels.Movement.Update(_position, _goal, _speedModifier, _type);
+                                        }
 
                                         _fire = false;
                                 }
@@ -64,14 +67,17 @@ namespace Entice
 
                 private static void CreateMovementState()
                 {
-                        var c = Game.Player.Character;
-                        var m = c.AgentClientMemory;
-                        var t = c.Transformation;
+                        lock (_timer)
+                        {
+                                var c = Game.Player.Character;
+                                var m = c.AgentClientMemory;
+                                var t = c.Transformation;
 
-                        _position = new Position(m.X, m.Y, m.Plane);
-                        _goal = t.Goal;
-                        _speedModifier = Game.Player.SpeedModifier;
-                        _type = t.MovementType;
+                                _position = new Position(m.X, m.Y, m.Plane);
+                                _goal = t.Goal;
+                                _speedModifier = Game.Player.SpeedModifier;
+                                _type = t.MovementType;
+                        }
                 }
 
                 private static bool Changed(out bool immediately)
