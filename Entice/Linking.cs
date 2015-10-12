@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Entice.Components;
 using Entice.Definitions;
 using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
+using GuildWarsInterface.Datastructures.Components;
 using GuildWarsInterface.Declarations;
 using GuildWarsInterface.Interaction;
 using GuildWarsInterface.Logic;
@@ -16,6 +19,21 @@ namespace Entice
                         AuthLogic.Login = Login;
                         AuthLogic.Logout = Networking.SignOut;
                         AuthLogic.Play = Play;
+                        AuthLogic.AddFriend = (type, name, characterName) =>
+                                {
+                                        if (!Networking.RestApi.AddFriend(name)) return false;
+                                                
+                                        Networking.UpdateFriends();
+                                        return true;
+                                };
+                        AuthLogic.MoveFriend = (name, target) =>
+                                {
+                                        if (target != FriendList.Type.None) return false;
+                                        if (!Networking.RestApi.RemoveFriend(name)) return false;
+                                                
+                                        Networking.UpdateFriends();
+                                        return true;
+                                };
 
                         GameLogic.ChatMessage = ChatMessage;
                         GameLogic.PartyInvite = invitee => Networking.Channels.Group.Merge(invitee);
@@ -44,6 +62,7 @@ namespace Entice
                                 };
                         GameLogic.CastSkill = (slot, target) => Networking.Channels.Skill.Cast(slot);
                         GameLogic.ValidateNewCharacter = (name, apperance) => Networking.RestApi.CreateCharacter(name, apperance);
+                        
                 }
 
                 private static void ChatMessage(string message, Chat.Channel channel)
@@ -60,7 +79,14 @@ namespace Entice
 
                 private static bool Login(string email, string password, string character)
                 {
-                        if (!Networking.SignIn(email, password)) return false;
+                        switch (Networking.SignIn(email, password))
+                        {
+                                case SecureRestApi.LoginResult.Error:
+                                        return false;
+                                case SecureRestApi.LoginResult.InvalidClientVersion:
+                                        Game.TemporaryFeatureREMOVE();
+                                        return false;
+                        }
 
                         IEnumerable<PlayerCharacter> characters;
                         if (!Networking.RestApi.GetCharacters(out characters)) return false;

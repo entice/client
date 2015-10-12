@@ -42,7 +42,7 @@ namespace Entice.Channels
                                                 }
                                         }
                                         break;
-                                case "join:ok":
+                                case "initial":
                                         {
                                                 Guid myId = Entity.Entities.Values.OfType<Player>().First(p => p.Character == Game.Player.Character).Id;
 

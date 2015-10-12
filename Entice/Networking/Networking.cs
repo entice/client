@@ -9,6 +9,8 @@ using Entice.Debugging;
 using Entice.Definitions;
 using Entice.Entities;
 using GuildWarsInterface;
+using GuildWarsInterface.Datastructures.Components;
+using GuildWarsInterface.Declarations;
 using WebSocket4Net;
 
 namespace Entice
@@ -19,6 +21,14 @@ namespace Entice
                 public static SecureRestApi RestApi;
                 public static readonly NetworkChannels Channels = new NetworkChannels();
 
+                private static Timer _friendTimer = new Timer(state =>
+                        {
+                                if (!UpdateFriends())
+                                {
+                                        Console.WriteLine("update friends failed");
+                                }
+                        }, null, 0, 15000);
+
                 private static Timer _phoenixTimer = new Timer(state =>
                         {
                                 if (Websocket == null) return;
@@ -27,7 +37,7 @@ namespace Entice
                                 Websocket.Send(new Message("phoenix", "heartbeat", "screwyou", o => { }));
                         }, null, 0, 5000);
 
-                public static bool SignIn(string email, string password)
+                public static SecureRestApi.LoginResult SignIn(string email, string password)
                 {
                         return SecureRestApi.Login(email, password, out RestApi);
                 }
@@ -81,6 +91,24 @@ namespace Entice
                         Game.Player.Character = Entity.Reset(accessCredentials.EntityId).Character;
 
                         Channels.All.ForEach(c => c.Join());
+
+                        if (!UpdateFriends())
+                        {
+                                Console.WriteLine("update friends failed");
+                        }
+
+                        return true;
+                }
+
+                internal static bool UpdateFriends()
+                {
+                        Game.Player.FriendList.Clear();
+                        if (RestApi == null) return true;
+
+                        IEnumerable<KeyValuePair<KeyValuePair<string, string>, bool>> friends;
+                        if (!RestApi.GetFriends(out friends)) return false;
+
+                        friends.ToList().ForEach(f => Game.Player.FriendList.Add(FriendList.Type.Friend, f.Key.Key, f.Key.Value, f.Value ? PlayerStatus.Online : PlayerStatus.Offline));
 
                         return true;
                 }

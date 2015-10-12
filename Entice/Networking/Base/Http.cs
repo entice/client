@@ -10,12 +10,31 @@ namespace Entice.Base
 {
         internal static class Http
         {
-                public static KeyValuePair<bool, IEnumerable<Cookie>> Post(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                public static bool Post(string route, IEnumerable<KeyValuePair<string, string>> parameters, out IEnumerable<Cookie> cookies, out JObject content, Cookie cookie = null)
                 {
-                        return PostAsync(route, parameters, cookie).Result;
+                        var result = PostAsync(route, parameters, cookie).Result;
+
+                        content = result.Key ? JObject.Parse(result.Value.Value) : null;
+                        cookies = result.Value.Key;
+
+                        return result.Key;
                 }
 
-                private static async Task<KeyValuePair<bool,IEnumerable<Cookie>>> PostAsync(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                public static bool Post(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                {
+                        return PostAsync(route, parameters, cookie).Result.Key;
+                }
+
+                public static bool Post(string route, IEnumerable<KeyValuePair<string, string>> parameters, out JObject content, Cookie cookie = null)
+                {
+                        var result = PostAsync(route, parameters, cookie).Result;
+
+                        content = result.Key ? JObject.Parse(result.Value.Value) : null;
+
+                        return result.Key;
+                }
+
+                private static async Task<KeyValuePair<bool, KeyValuePair<IEnumerable<Cookie>, string>>> PostAsync(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
                 {
                         using (var handler = new HttpClientHandler())
                         {
@@ -24,8 +43,10 @@ namespace Entice.Base
                                 using (var client = new HttpClient(handler))
                                 {
                                         HttpResponseMessage response = await client.PostAsync(FormUri(route), new FormUrlEncodedContent(parameters));
-
-                                        return new KeyValuePair<bool, IEnumerable<Cookie>>(response.IsSuccessStatusCode,handler.CookieContainer.GetCookies(new Uri(FormUri(route))).Cast<Cookie>());
+                                        
+                                        return new KeyValuePair<bool, KeyValuePair<IEnumerable<Cookie>, string>>(response.IsSuccessStatusCode,
+                                                new KeyValuePair<IEnumerable<Cookie>, string>(handler.CookieContainer.GetCookies(new Uri(FormUri(route))).Cast<Cookie>(),
+                                                        await response.Content.ReadAsStringAsync()));
                                 }
                         }
                 }
@@ -49,6 +70,26 @@ namespace Entice.Base
                                         HttpResponseMessage response = await client.GetAsync(FormUri(route, parameters));
 
                                         return new KeyValuePair<bool, string>(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+                                }
+                        }
+                }
+
+                public static bool Delete(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                {
+                        return DeleteAsync(route, parameters, cookie).Result;
+                }
+
+                private static async Task<bool> DeleteAsync(string route, IEnumerable<KeyValuePair<string, string>> parameters, Cookie cookie = null)
+                {
+                        using (var handler = new HttpClientHandler())
+                        {
+                                if (cookie != null) handler.CookieContainer.Add(cookie);
+
+                                using (var client = new HttpClient(handler))
+                                {
+                                        HttpResponseMessage response = await client.DeleteAsync(FormUri(route, parameters));
+
+                                        return response.IsSuccessStatusCode;
                                 }
                         }
                 }
