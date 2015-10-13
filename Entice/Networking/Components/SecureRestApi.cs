@@ -166,14 +166,14 @@ namespace Entice.Components
                 {
                         const string ROUTE = "/api/friend";
 
-                        return Http.Post(ROUTE, new[] {new KeyValuePair<string, string>("friend_name", name)}, _cookie);
+                        return Http.Post(ROUTE, new[] {new KeyValuePair<string, string>("char_name", name)}, _cookie);
                 }
 
                 public bool RemoveFriend(string name)
                 {
                         const string ROUTE = "/api/friend";
 
-                        return Http.Delete(ROUTE, new[] { new KeyValuePair<string, string>("friend_name", name) }, _cookie);
+                        return Http.Delete(ROUTE, new[] { new KeyValuePair<string, string>("char_name", name) }, _cookie);
                 }
 
                 public class AccessCredentials
