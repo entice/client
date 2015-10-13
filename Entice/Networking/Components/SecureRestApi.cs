@@ -33,7 +33,7 @@ namespace Entice.Components
                                 {
                                         new KeyValuePair<string, string>("email", email),
                                         new KeyValuePair<string, string>("password", password),
-                                        new KeyValuePair<string, string>("client_version", "MS10")
+                                        new KeyValuePair<string, string>("client_version", "MS11")
                                 }, out cookies, out content))
                         {
                                 if (content.GetValue("message").ToString().Equals("Invalid Client Version"))
