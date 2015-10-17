@@ -40,6 +40,8 @@ namespace Entice.Entities
                         {
                                 case "appearance":
                                         return GetEntity<Player>(entity.Id);
+                                case "npc":
+                                        return GetEntity<Npc>(entity.Id);
                                 default:
                                         return entity;
                         }

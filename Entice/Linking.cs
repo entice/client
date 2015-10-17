@@ -21,10 +21,14 @@ namespace Entice
                         AuthLogic.Play = Play;
                         AuthLogic.AddFriend = (type, name, characterName) =>
                                 {
-                                        if (!Networking.RestApi.AddFriend(name)) return false;
-                                                
-                                        Networking.UpdateFriends();
-                                        return true;
+                                        switch (Networking.RestApi.AddFriend(name))
+                                        {
+                                                case AddFriendResult.Success:
+                                                        Networking.UpdateFriends();
+                                                        return true;
+                                                default:
+                                                        return false;
+                                        }
                                 };
                         AuthLogic.MoveFriend = (name, target) =>
                                 {

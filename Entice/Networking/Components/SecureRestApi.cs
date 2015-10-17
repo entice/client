@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using Entice.Base;
+using Entice.Debugging;
 using Entice.Definitions;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Datastructures.Agents.Components;
@@ -162,11 +163,32 @@ namespace Entice.Components
                         return friends != null;
                 }
 
-                public bool AddFriend(string name)
+                public AddFriendResult AddFriend(string name)
                 {
                         const string ROUTE = "/api/friend";
 
-                        return Http.Post(ROUTE, new[] {new KeyValuePair<string, string>("char_name", name)}, _cookie);
+
+                        JObject response;
+                        if (Http.Post(ROUTE, new[] { new KeyValuePair<string, string>("char_name", name) }, out response, _cookie))
+                        {
+                                switch (response.GetValue("status").ToString())
+                                {
+                                        case "ok":
+                                                return AddFriendResult.Success;
+                                        case "error":
+                                                switch (response.GetValue("message").ToString())
+                                                {
+                                                        case "Can't add yourself.":
+                                                                return AddFriendResult.CantAddYourself;
+                                                        case "There is no character with that name":
+                                                                return AddFriendResult.DoesNotExist;
+                                                        default:
+                                                                throw new ArgumentOutOfRangeException();
+                                                }
+                                }
+                        }
+
+                        return AddFriendResult.Error;
                 }
 
                 public bool RemoveFriend(string name)
@@ -184,5 +206,13 @@ namespace Entice.Components
                         public Area Area { get; set; }
                         public bool IsOutpost { get; set; }
                 }
+        }
+
+        internal enum AddFriendResult
+        {
+                Error,
+                Success,
+                CantAddYourself,
+                DoesNotExist
         }
 }

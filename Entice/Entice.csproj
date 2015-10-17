@@ -70,6 +70,7 @@
     </Compile>
     <Compile Include="Definitions\DefinitionConverter.cs" />
     <Compile Include="Definitions\Area.cs" />
+    <Compile Include="Entities\Npc.cs" />
     <Compile Include="Movement.cs" />
     <Compile Include="Networking\Channels\Channel.cs" />
     <Compile Include="Networking\Channels\EntityChannel.cs" />
