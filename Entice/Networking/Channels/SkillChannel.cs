@@ -33,7 +33,7 @@ namespace Entice.Channels
                 {
                         switch (message.Event)
                         {
-                                case "join:ok":
+                                case "initial":
                                         {
                                                 string hSkills = message.Payload.Value<string>("unlocked_skills");
                                                 byte[] avSkills = Enumerable.Range(0, hSkills.Length)
