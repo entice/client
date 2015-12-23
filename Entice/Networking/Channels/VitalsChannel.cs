@@ -18,14 +18,12 @@ namespace Entice.Channels
             {
                 case "entity:resurrected":
                 {
-                    
-                }
+                        Entity.Players.First(p => p.Character == Game.Player.Character).Character.Status =
+                            CreatureStatus.Spawn;
+                    }
                     break;
                 case "entity:dead":
                 {
-                    Player myId =
-                        Entity.Entities.Values.OfType<Player>().First(p => p.Character == Game.Player.Character);
-
                     Entity.Players.First(p => p.Character == Game.Player.Character).Character.Status =
                         CreatureStatus.Dead;
                 }
