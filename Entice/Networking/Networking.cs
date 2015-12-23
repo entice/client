@@ -132,10 +132,11 @@ namespace Entice
                         public readonly MovementChannel Movement = new MovementChannel();
                         public readonly SkillChannel Skill = new SkillChannel();
                         public readonly SocialChannel Social = new SocialChannel();
+                        public readonly VitalsChannel Vitals = new VitalsChannel();
 
                         public List<Channel> All
                         {
-                                get { return new List<Channel> {Movement, Group, Skill, Social, Entity}; }
+                                get { return new List<Channel> {Movement, Group, Skill, Social, Entity, Vitals}; }
                         }
 
                         public void HandleMessage(Message message)

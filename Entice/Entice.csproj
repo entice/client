@@ -78,6 +78,7 @@
     <Compile Include="Networking\Channels\MovementChannel.cs" />
     <Compile Include="Networking\Channels\SkillChannel.cs" />
     <Compile Include="Networking\Channels\SocialChannel.cs" />
+	<Compile Include="Networking\Channels\VitalsChannel.cs" />
     <Compile Include="Networking\Components\EnticeWebsocket.cs" />
     <Compile Include="Networking\Base\Http.cs" />
     <Compile Include="Linking.cs" />
