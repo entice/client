@@ -108,7 +108,12 @@ namespace Entice
                         IEnumerable<KeyValuePair<KeyValuePair<string, string>, bool>> friends;
                         if (!RestApi.GetFriends(out friends)) return false;
 
-                        friends.ToList().ForEach(f => Game.Player.FriendList.Add(FriendList.Type.Friend, f.Key.Key, f.Key.Value, f.Value ? PlayerStatus.Online : PlayerStatus.Offline));
+
+                        var friendList = friends.ToList();
+                        foreach (var f in friendList)
+                        {
+                                Game.Player.FriendList.Add(FriendList.Type.Friend, f.Key.Key, f.Key.Value, f.Value ? PlayerStatus.Online : PlayerStatus.Offline);
+                        }
 
                         return true;
                 }

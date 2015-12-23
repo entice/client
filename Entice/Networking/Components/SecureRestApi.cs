@@ -151,15 +151,21 @@ namespace Entice.Components
 
                         JObject response;
                         if (Http.Get(ROUTE, null, out response, _cookie))
-                                friends = response.GetValue("friends").Select(
+                        {
+                                JToken friendInfo = response.GetValue("friends");
+
+                                friends = friendInfo.Select(
                                         c => new KeyValuePair<KeyValuePair<string, string>, bool>(
                                                      new KeyValuePair<string, string>(
                                                      c.Value<string>("base_name"),
                                                      c.Value<string>("current_name")),
                                                      c.Value<string>("status").Equals("online")));
-
-                        else friends = null;
-
+                        }
+                        else
+                        {
+                                friends = null;
+                        }
+                        
                         return friends != null;
                 }
 
@@ -182,6 +188,8 @@ namespace Entice.Components
                                                                 return AddFriendResult.CantAddYourself;
                                                         case "There is no character with that name":
                                                                 return AddFriendResult.DoesNotExist;
+                                                        case "Already in friends list.":
+                                                                return AddFriendResult.AlreadyFriend;
                                                         default:
                                                                 throw new ArgumentOutOfRangeException();
                                                 }
@@ -213,6 +221,7 @@ namespace Entice.Components
                 Error,
                 Success,
                 CantAddYourself,
-                DoesNotExist
+                DoesNotExist,
+                AlreadyFriend
         }
 }
