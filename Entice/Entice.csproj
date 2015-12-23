@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GuildWarsInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Gw-Interfaces\GuildWarsInterface\bin\Debug\GuildWarsInterface.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -78,6 +82,7 @@
     <Compile Include="Networking\Channels\MovementChannel.cs" />
     <Compile Include="Networking\Channels\SkillChannel.cs" />
     <Compile Include="Networking\Channels\SocialChannel.cs" />
+    <Compile Include="Networking\Channels\VitalsChannel.cs" />
     <Compile Include="Networking\Components\EnticeWebsocket.cs" />
     <Compile Include="Networking\Base\Http.cs" />
     <Compile Include="Linking.cs" />
@@ -91,12 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\gw-interface\GuildWarsInterface\GuildWarsInterface.csproj">
-      <Project>{fcae8279-545e-41c2-abb4-3c2db92e1c7e}</Project>
-      <Name>GuildWarsInterface</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DebugWindow.resx">
