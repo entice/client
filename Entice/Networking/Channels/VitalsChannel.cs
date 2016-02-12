@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Entice.Base;
 using Entice.Entities;
 using GuildWarsInterface;
+using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
 using Newtonsoft.Json.Linq;
 
@@ -14,21 +16,41 @@ namespace Entice.Channels
 
         public override void HandleMessage(Message message)
         {
+            
             switch (message.Event)
             {
                 case "entity:resurrected":
                 {
-                        Entity.Players.First(p => p.Character == Game.Player.Character).Character.Status =
-                            CreatureStatus.Spawn;
-                    }
+                    Guid entityId = Guid.Parse(message.Payload.entity.ToString());
+                        Creature creature = GetCreature(entityId);
+                    creature.Status = CreatureStatus.Spawn;
+                }
                     break;
                 case "entity:dead":
                 {
-                    Entity.Players.First(p => p.Character == Game.Player.Character).Character.Status =
-                        CreatureStatus.Dead;
+                    Guid entityId;
+                    bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
+                    if (!parseResult) return;
+                    Creature creature = GetCreature(entityId);
+                    creature.Status = CreatureStatus.Dead;
                 }
                     break;
             }
+        }
+
+        private Creature GetCreature(Guid entityId)
+        {
+            Type typeOfEntity = Entity.Entities[entityId].GetType();
+            if (typeOfEntity == typeof (PlayerCharacter))
+            {
+                return Entity.GetEntity<Player>(entityId).Character;
+            }
+            else if (typeOfEntity == typeof (Npc))
+            {
+                return Entity.GetEntity<Npc>(entityId).Character;
+            }
+
+            return default(Creature);
         }
     }
 }
