@@ -4,6 +4,7 @@ using Entice.Base;
 using Entice.Definitions;
 using Entice.Entities;
 using GuildWarsInterface;
+using GuildWarsInterface.Declarations;
 using Newtonsoft.Json.Linq;
 
 namespace Entice.Channels
@@ -76,6 +77,7 @@ namespace Entice.Channels
                                                 foreach (JProperty a in message.Payload.added.Values<JProperty>())
                                                 {
                                                         Entity.UpdateEntity(id, a.Name, a.Value);
+                                                        
                                                 }
 
                                                 foreach (JProperty a in message.Payload.changed.Values<JProperty>())

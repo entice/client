@@ -12,7 +12,10 @@ namespace Entice.Components
                 {
                         _webSocket = new WebSocket(uri);
                         _webSocket.Closed += (sender, args) => Console.WriteLine("connection lost");
-                        _webSocket.MessageReceived += (sender, args) => Networking.Channels.HandleMessage(new Message(args.Message));
+                        _webSocket.MessageReceived += (sender, args) =>
+                        {
+                            Networking.Channels.HandleMessage(new Message(args.Message));
+                        };
                 }
 
                 public WebSocketState State

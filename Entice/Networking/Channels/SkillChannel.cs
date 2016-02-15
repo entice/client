@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Entice.Base;
+using Entice.Debugging;
 using Entice.Entities;
 using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
+using GuildWarsInterface.Misc;
 
 namespace Entice.Channels
 {
@@ -23,10 +26,38 @@ namespace Entice.Channels
                                         o.id = skill;
                                 });
                 }
-
-                public void Cast(uint slot)
+        
+                public void Cast(uint slot, Creature target)
                 {
-                        Send("cast", o => { o.slot = slot; });
+                        List<Entity> npcs = Entity.Entities.Values.Where(x => x is Npc).ToList();
+                        Npc targetNpc = npcs.Where(x => ((Npc) x).Character.Equals(target)).Select(y=> y as Npc).FirstOrDefault();
+
+                        List<Entity> players = Entity.Entities.Values.Except(npcs).ToList();
+                        Player targetPlayer =
+                            players.Where(x => ((Player) x).Character.Equals(target))
+                                .Select(y => y as Player)
+                                .FirstOrDefault();
+
+                        Guid? targetId = null;
+                        if (targetNpc == null && targetPlayer == null)
+                        {
+                            Debug.Error("No Target found for Skill Cast slot: {0} TargetInfo-> name: {1}", slot, target.Name);
+                        }
+                        else if (targetNpc != null && targetPlayer == null)
+                        {
+                            targetId = targetNpc.Id;
+                        }
+                        else
+                        {
+                            targetId = targetPlayer.Id;
+                        }
+
+
+                        Send("cast", o => 
+                        {
+                            o.slot = slot;
+                            o.target = targetId;
+                        });
                 }
 
                 public override void HandleMessage(Message message)

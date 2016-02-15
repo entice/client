@@ -4,6 +4,7 @@ using System.Linq;
 using Entice.Components;
 using Entice.Definitions;
 using GuildWarsInterface;
+using GuildWarsInterface.Datastructures;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Datastructures.Components;
 using GuildWarsInterface.Declarations;
@@ -64,7 +65,7 @@ namespace Entice
                                         Networking.Channels.Skill.SkillbarSet(slot2, skill1);
                                         Networking.Channels.Skill.SkillbarSet(slot1, skill2);
                                 };
-                        GameLogic.CastSkill = (slot, target) => Networking.Channels.Skill.Cast(slot);
+                        GameLogic.CastSkill = (slot, target) => Networking.Channels.Skill.Cast(slot, target);
                         GameLogic.ValidateNewCharacter = (name, apperance) => Networking.RestApi.CreateCharacter(name, apperance);
                         
                 }
