@@ -44,8 +44,8 @@ namespace Entice.Channels
                     }
 
                     AddMembersToParty(party, message.Payload.members);
-                    AddOrRemoveInvites(party, message.Payload.invites);
-                    GenerateJoinRequests(groupLeader, message.Payload.invites);
+                    AddOrRemoveInvites(party, message.Payload.invited);
+                    GenerateJoinRequests(groupLeader, message.Payload.invited);
 
                     if (newParty)
                         Game.Zone.AddParty(party);
@@ -63,6 +63,7 @@ namespace Entice.Channels
 
         private void AddMembersToParty(Party party, JArray members)
         {
+            if (members == null) return;
             string[] items = members.Select(jv => (string)jv).ToArray();
             foreach (string entityId in items)
             {
@@ -73,6 +74,7 @@ namespace Entice.Channels
 
         private void AddOrRemoveInvites(Party party, JArray invites)
         {
+            if (invites == null) return;
             string[] items = invites.Select(jv => (string)jv).ToArray();
             foreach (string entityId in items)
             {
@@ -85,6 +87,7 @@ namespace Entice.Channels
 
         private void GenerateJoinRequests(PlayerCharacter groupLeader, JArray invites)
         {
+            if (invites == null) return;
             foreach (string leaderid in invites.Select(y=> (string)y).ToArray())
             { 
                 PlayerCharacter requestedGroupJoinLeader = Entity.GetEntity<Player>(Guid.Parse(leaderid)).Character;
