@@ -98,6 +98,8 @@ namespace Entice
                         Game.Player.Account.ClearCharacters();
                         characters.ToList().ForEach(Game.Player.Account.AddCharacter);
                         Game.Player.Character = Game.Player.Account.Characters.FirstOrDefault();
+                        //Needs to be called before the interface sends the friendlist init messages or future updates won't work
+                        Networking.UpdateFriends();
 
                         return true;
                 }
