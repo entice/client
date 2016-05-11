@@ -2,7 +2,6 @@
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Datastructures.Agents.Components;
 using GuildWarsInterface.Declarations;
-using Newtonsoft.Json.Linq;
 
 namespace Entice.Entities
 {
@@ -57,12 +56,13 @@ namespace Entice.Entities
                     int manaModifier = int.Parse(value.ToString());
                     int newMana = 100 + manaModifier;
                     //ToDo: Handle serverside. Ex handling
-                    Character.Morale = (uint) newMana;
+                    Character.Morale = (uint)newMana;
                     break;
 
                 case "energy":
                     Character.Energy.Current = uint.Parse(value.mana.ToString());
                     Character.Energy.Maximum = uint.Parse(value.max_mana.ToString());
+                    Character.Energy.Regeneration = float.Parse((value.regeneration.ToString()));
                     break;
 
                 case "level":

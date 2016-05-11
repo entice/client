@@ -6,7 +6,6 @@ using GuildWarsInterface.Datastructures.Agents;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Entice.Channels
 {
@@ -80,7 +79,7 @@ namespace Entice.Channels
                 {
                     PlayerCharacter character = Entity.GetEntity<Player>(Guid.Parse(member)).Character;
 
-                    if(party.Leader == character) continue;
+                    if (party.Leader == character) continue;
 
                     if (party.Members.Contains(character)) continue;
                     party.RemoveMember(character);
@@ -91,7 +90,7 @@ namespace Entice.Channels
                     // Remove all members
                     foreach (PlayerCharacter member in party.Members)
                     {
-                        if(party.Leader == member) continue;
+                        if (party.Leader == member) continue;
                         party.RemoveMember(member);
                     }
                 }
