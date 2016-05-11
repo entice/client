@@ -3,11 +3,11 @@ using System.Windows.Forms;
 
 namespace Launcher
 {
-        static class Program
+    internal static class Program
+    {
+        private static void Main()
         {
-                static void Main()
-                {
-                        ProcessInteraction.Run(Application.StartupPath + Path.DirectorySeparatorChar + "Gw.exe", "-oldauth", Application.StartupPath + Path.DirectorySeparatorChar + "Entice.dll", "Main");
-                }
+            ProcessInteraction.Run(Application.StartupPath + Path.DirectorySeparatorChar + "Gw.exe", "-oldauth", Application.StartupPath + Path.DirectorySeparatorChar + "Entice.dll", "Main");
         }
+    }
 }
