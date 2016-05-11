@@ -1,12 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using Entice.Base;
+﻿using Entice.Base;
 using Entice.Entities;
-using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
-using Newtonsoft.Json.Linq;
+using System;
 
 namespace Entice.Channels
 {
@@ -21,20 +17,21 @@ namespace Entice.Channels
             switch (message.Event)
             {
                 case "entity:resurrected":
-                {
-                    Guid entityId = Guid.Parse(message.Payload.entity.ToString());
+                    {
+                        Guid entityId = Guid.Parse(message.Payload.entity.ToString());
                         Creature creature = GetCreature(entityId);
-                    creature.Status = CreatureStatus.Spawn;
-                }
+                        creature.Status = CreatureStatus.Spawn;
+                    }
                     break;
+
                 case "entity:dead":
-                {
-                    Guid entityId;
-                    bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
-                    if (!parseResult) return;
-                    Creature creature = GetCreature(entityId);
-                    creature.Status = CreatureStatus.Dead;
-                }
+                    {
+                        Guid entityId;
+                        bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
+                        if (!parseResult) return;
+                        Creature creature = GetCreature(entityId);
+                        creature.Status = CreatureStatus.Dead;
+                    }
                     break;
             }
         }
@@ -42,11 +39,11 @@ namespace Entice.Channels
         private Creature GetCreature(Guid entityId)
         {
             Type typeOfEntity = Entity.Entities[entityId].GetType();
-            if (typeOfEntity == typeof (PlayerCharacter))
+            if (typeOfEntity == typeof(PlayerCharacter))
             {
                 return Entity.GetEntity<Player>(entityId).Character;
             }
-            else if (typeOfEntity == typeof (Npc))
+            else if (typeOfEntity == typeof(Npc))
             {
                 return Entity.GetEntity<Npc>(entityId).Character;
             }
