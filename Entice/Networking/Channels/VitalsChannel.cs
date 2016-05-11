@@ -28,7 +28,6 @@ namespace Entice.Channels
                 case "entity:dead":
                     {
                         PlayerCharacter character = Entity.GetEntity<Player>(Guid.Parse(message.Payload.entity.ToString())).Character;
-                        character.can;
                         character.Status = CreatureStatus.Dead;
                     }
                     break;
