@@ -73,6 +73,21 @@ namespace Entice.Entities
             return Guid.Empty;
         }
 
+        public static Creature GetCreature(Guid entityId)
+        {
+            Type typeOfEntity = Entity.Entities[entityId].GetType();
+            if (typeOfEntity == typeof(PlayerCharacter))
+            {
+                return Entity.GetEntity<Player>(entityId).Character;
+            }
+            else if (typeOfEntity == typeof(Npc))
+            {
+                return Entity.GetEntity<Npc>(entityId).Character;
+            }
+
+            return default(Creature);
+        }
+
         private static T CreateEntity<T>(Guid id) where T : Entity, new()
         {
             var result = new T { Id = id };

@@ -135,7 +135,6 @@ namespace Entice
 
             public List<Channel> All
             {
-                //get { return new List<Channel> {Movement, Group, Skill, Social, Entity, Vitals}; }
                 get { return new List<Channel> { Entity, Movement, Skill, Social, Vitals, Group }; }
             }
 

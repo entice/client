@@ -18,8 +18,10 @@ namespace Entice.Channels
             {
                 case "entity:resurrected":
                     {
-                        Guid entityId = Guid.Parse(message.Payload.entity.ToString());
-                        Creature creature = GetCreature(entityId);
+                        Guid entityId;
+                        bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
+                        if (!parseResult) return;
+                        Creature creature = Entity.GetCreature(entityId);
                         creature.Status = CreatureStatus.Spawn;
                     }
                     break;
@@ -29,26 +31,11 @@ namespace Entice.Channels
                         Guid entityId;
                         bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
                         if (!parseResult) return;
-                        Creature creature = GetCreature(entityId);
+                        Creature creature = Entity.GetCreature(entityId);
                         creature.Status = CreatureStatus.Dead;
                     }
                     break;
             }
-        }
-
-        private Creature GetCreature(Guid entityId)
-        {
-            Type typeOfEntity = Entity.Entities[entityId].GetType();
-            if (typeOfEntity == typeof(PlayerCharacter))
-            {
-                return Entity.GetEntity<Player>(entityId).Character;
-            }
-            else if (typeOfEntity == typeof(Npc))
-            {
-                return Entity.GetEntity<Npc>(entityId).Character;
-            }
-
-            return default(Creature);
         }
     }
 }

@@ -42,7 +42,6 @@ namespace Entice.Channels
                         }
                     }
                     break;
-
                 case "initial":
                     {
                         Guid myId = Entity.Entities.Values.OfType<Player>().First(p => p.Character == Game.Player.Character).Id;
@@ -60,7 +59,6 @@ namespace Entice.Channels
                                 });
                     }
                     break;
-
                 case "add":
                     {
                         Guid id = Guid.Parse(message.Payload.entity.ToString());
@@ -71,7 +69,6 @@ namespace Entice.Channels
                         }
                     }
                     break;
-
                 case "change":
                     {
                         Guid id = Guid.Parse(message.Payload.entity.ToString());
@@ -87,7 +84,6 @@ namespace Entice.Channels
                         }
                     }
                     break;
-
                 case "remove":
                     {
                         Entity.RemoveEntity(Guid.Parse(message.Payload.entity.ToString()));
