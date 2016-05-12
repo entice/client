@@ -1,32 +1,39 @@
-﻿using System;
-using System.Linq;
-using Entice.Base;
+﻿using Entice.Base;
 using Entice.Entities;
-using GuildWarsInterface;
+using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Declarations;
-using Newtonsoft.Json.Linq;
+using System;
 
 namespace Entice.Channels
 {
     internal sealed class VitalsChannel : Channel
     {
-        internal VitalsChannel() : base("vitals") { }
+        internal VitalsChannel() : base("vitals")
+        {
+        }
 
         public override void HandleMessage(Message message)
         {
             switch (message.Event)
             {
                 case "entity:resurrected":
-                {
-                        Entity.Players.First(p => p.Character == Game.Player.Character).Character.Status =
-                            CreatureStatus.Spawn;
+                    {
+                        Guid entityId;
+                        bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
+                        if (!parseResult) return;
+                        Creature creature = Entity.GetCreature(entityId);
+                        creature.Status = CreatureStatus.Spawn;
                     }
                     break;
+
                 case "entity:dead":
-                {
-                    Entity.Players.First(p => p.Character == Game.Player.Character).Character.Status =
-                        CreatureStatus.Dead;
-                }
+                    {
+                        Guid entityId;
+                        bool parseResult = Guid.TryParse(message.Payload.entity.ToString(), out entityId);
+                        if (!parseResult) return;
+                        Creature creature = Entity.GetCreature(entityId);
+                        creature.Status = CreatureStatus.Dead;
+                    }
                     break;
             }
         }

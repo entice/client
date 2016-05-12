@@ -2,13 +2,13 @@
 
 namespace Entice.Debugging
 {
-        public static class Debug
+    public static class Debug
+    {
+        public static void Error(string format, params object[] args)
         {
-                public static void Error(string format, params object[] args)
-                {
-                        Networking.SignOut();
+            Networking.SignOut();
 
-                        MessageBox.Show(string.Format(format, args) + "\n\nthe program behaviour is now UNDEFINED!\nFurthermore you were LOGGED OUT :P", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
+            MessageBox.Show(string.Format(format, args) + "\n\nthe program behaviour is now UNDEFINED!\nFurthermore you were LOGGED OUT :P", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
+    }
 }

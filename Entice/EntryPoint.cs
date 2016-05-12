@@ -1,33 +1,33 @@
-﻿using System;
-using System.Threading;
-using Entice.Debugging;
+﻿using Entice.Debugging;
 using GuildWarsInterface;
 using GuildWarsInterface.Declarations;
 using RGiesecke.DllExport;
+using System;
+using System.Threading;
 
 namespace Entice
 {
-        internal class EntryPoint
+    internal class EntryPoint
+    {
+        [DllExport("Main")]
+        internal static void Main()
         {
-                [DllExport("Main")]
-                internal static void Main()
-                {
-                        AppDomain.CurrentDomain.UnhandledException += (sender, args) => Debug.Error(args.ExceptionObject.ToString());
-                        GuildWarsInterface.Debugging.Debug.ThrowException += exception => Debug.Error(exception.ToString());
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) => Debug.Error(args.ExceptionObject.ToString());
+            GuildWarsInterface.Debugging.Debug.ThrowException += exception => Debug.Error(exception.ToString());
 
-                        Game.Initialize();
-                        Linking.Initialize();
+            Game.Initialize();
+            Linking.Initialize();
 
-                        new Thread(() =>
-                                {
-                                        while (true)
-                                        {
-                                                if (Game.State == GameState.Playing) Game.TimePassed(100);
-                                                Thread.Sleep(100);
-                                        }
-                                }).Start();
+            new Thread(() =>
+                    {
+                        while (true)
+                        {
+                            if (Game.State == GameState.Playing) Game.TimePassed(100);
+                            Thread.Sleep(100);
+                        }
+                    }).Start();
 
-                        new Thread(Movement.Task).Start();
-                }
+            new Thread(Movement.Task).Start();
         }
+    }
 }
