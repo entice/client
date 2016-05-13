@@ -62,7 +62,7 @@ namespace Entice.Entities
                 case "energy":
                     Character.Energy.Current = uint.Parse(value.mana.ToString());
                     Character.Energy.Maximum = uint.Parse(value.max_mana.ToString());
-                    Character.Energy.Regeneration = float.Parse((value.regeneration.ToString()));
+                    Character.Energy.Regeneration = float.Parse((value.regeneration.ToString())) / Character.Energy.Maximum;
                     break;
 
                 case "level":
