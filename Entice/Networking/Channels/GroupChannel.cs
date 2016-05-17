@@ -128,7 +128,7 @@ namespace Entice.Channels
                 PlayerCharacter requestedGroupJoinLeader = Entity.GetEntity<Player>(Guid.Parse(leaderid)).Character;
                 Party partyOfRequestedGroupJoinLeader = Game.Zone.Parties.FirstOrDefault(x => x.Leader == requestedGroupJoinLeader);
                 Party ownParty = Game.Zone.Parties.FirstOrDefault(x => x.Leader == groupLeader);
-                partyOfRequestedGroupJoinLeader?.AddJoinRequest(ownParty);
+                partyOfRequestedGroupJoinLeader.AddJoinRequest(ownParty);
             }
         }
     }
