@@ -27,7 +27,8 @@ namespace Entice
                         }
                     }).Start();
 
-            new Thread(Movement.Task).Start();
+            //ToDo: Fix Method in Movement.cs L67-96
+            //new Thread(Movement.Task).Start();
         }
     }
 }
