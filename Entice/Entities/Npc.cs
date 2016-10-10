@@ -1,6 +1,7 @@
 ﻿using GuildWarsInterface;
 using GuildWarsInterface.Datastructures.Agents;
 using GuildWarsInterface.Datastructures.Agents.Components;
+using GuildWarsInterface.Declarations;
 
 namespace Entice.Entities
 {
@@ -30,6 +31,12 @@ namespace Entice.Entities
                 case "position":
                     Character.Transformation.Position = new Position(float.Parse(value.x.ToString()), float.Parse(value.y.ToString()),
                                                                      Character.Transformation.Position.Plane); // TODO: server handled plane
+                    break;
+
+                case "movement":
+                    Character.Transformation.SetGoal((float)value.x, (float)value.y, Character.Transformation.Position.Plane);
+                    Character.Transformation.SpeedModifier = value.velocity;
+                    Character.Transformation.MovementType = (MovementType)value.move_type;
                     break;
 
                 case "health":
